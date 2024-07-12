@@ -54,7 +54,8 @@ def load_and_predict(file_path):
     inputs = new_data[len(new_data) - len(valid) - 60:].values
     inputs = inputs.reshape(-1, 1)
     inputs = scaler.transform(inputs)
-    
+    lstm_model.compile(loss='mean_squared_error', optimizer='adam')
+    lstm_model.fit(x_train, y_train, epochs=1, batch_size=1, verbose=1)
     X_test = []
     for i in range(60, inputs.shape[0]):
         X_test.append(inputs[i-60:i, 0])
@@ -79,7 +80,7 @@ app.layout = html.Div([
     dcc.Tabs(id="tabs", children=[
         dcc.Tab(label='BTC-USD', children=[
             html.Div([
-                html.H2("Actual closing price", style={"textAlign": "center"}),
+                html.H2("Actual vs Predicted closing price", style={"textAlign": "center"}),
                 dcc.Graph(
                     id="actual-data-nse",
                     figure={
@@ -87,8 +88,20 @@ app.layout = html.Div([
                             go.Scatter(
                                 x=train_nse.index,
                                 y=train_nse["Close"],
-                                mode='markers',
-                                name='Actual Close'
+                                mode='lines',
+                                name='Train'
+                            ),
+                            go.Scatter(
+                                x=valid_nse.index,
+                                y=valid_nse["Close"],
+                                mode='lines',
+                                name='Actual'
+                            ),
+                            go.Scatter(
+                                x=valid_nse.index,
+                                y=valid_nse["Predictions"],
+                                mode='lines',
+                                name='Predicted Close'
                             )
                         ],
                         "layout": go.Layout(
@@ -98,30 +111,12 @@ app.layout = html.Div([
                         )
                     }
                 ),
-                html.H2("LSTM Predicted closing price", style={"textAlign": "center"}),
-                dcc.Graph(
-                    id="predicted-data-nse",
-                    figure={
-                        "data": [
-                            go.Scatter(
-                                x=valid_nse.index,
-                                y=valid_nse["Predictions"],
-                                mode='markers',
-                                name='Predicted Close'
-                            )
-                        ],
-                        "layout": go.Layout(
-                            title='LSTM Predicted Closing Price',
-                            xaxis={'title': 'Date'},
-                            yaxis={'title': 'Closing Rate'}
-                        )
-                    }
-                )
+                
             ])
         ]),
         dcc.Tab(label='ETH-USD', children=[
             html.Div([
-                html.H2("Actual closing price", style={"textAlign": "center"}),
+                html.H2("Actual vs Predicted closing price", style={"textAlign": "center"}),
                 dcc.Graph(
                     id="actual-data-stock1",
                     figure={
@@ -129,9 +124,21 @@ app.layout = html.Div([
                             go.Scatter(
                                 x=train_stock1.index,
                                 y=train_stock1["Close"],
-                                mode='markers',
-                                name='Actual Close'
-                            )
+                                mode='lines',
+                                name='Train'
+                            ),
+                             go.Scatter(
+                                x=valid_stock1.index,
+                                y=valid_stock1["Close"],
+                                mode='lines',
+                                name='Actual'
+                            ),
+                             go.Scatter(
+                                x=valid_stock1.index,
+                                y=valid_stock1["Predictions"],
+                                mode='lines',
+                                name='Predicted Close'
+                            ),
                         ],
                         "layout": go.Layout(
                             title='Actual Closing Price',
@@ -140,30 +147,11 @@ app.layout = html.Div([
                         )
                     }
                 ),
-                html.H2("LSTM Predicted closing price", style={"textAlign": "center"}),
-                dcc.Graph(
-                    id="predicted-data-stock1",
-                    figure={
-                        "data": [
-                            go.Scatter(
-                                x=valid_stock1.index,
-                                y=valid_stock1["Predictions"],
-                                mode='markers',
-                                name='Predicted Close'
-                            )
-                        ],
-                        "layout": go.Layout(
-                            title='LSTM Predicted Closing Price',
-                            xaxis={'title': 'Date'},
-                            yaxis={'title': 'Closing Rate'}
-                        )
-                    }
-                )
             ])
         ]),
         dcc.Tab(label='ADA-USD', children=[
             html.Div([
-                html.H2("Actual closing price", style={"textAlign": "center"}),
+                html.H2("Actual vs Predicted closing price", style={"textAlign": "center"}),
                 dcc.Graph(
                     id="actual-data-stock2",
                     figure={
@@ -171,8 +159,20 @@ app.layout = html.Div([
                             go.Scatter(
                                 x=train_stock2.index,
                                 y=train_stock2["Close"],
-                                mode='markers',
-                                name='Actual Close'
+                                mode='lines',
+                                name='Train'
+                            ),
+                            go.Scatter(
+                                x=valid_stock2.index,
+                                y=valid_stock2["Close"],
+                                mode='lines',
+                                name='Actual'
+                            ),
+                            go.Scatter(
+                                x=valid_stock2.index,
+                                y=valid_stock2["Predictions"],
+                                mode='lines',
+                                name='Predicted Close'
                             )
                         ],
                         "layout": go.Layout(
@@ -182,25 +182,7 @@ app.layout = html.Div([
                         )
                     }
                 ),
-                html.H2("LSTM Predicted closing price", style={"textAlign": "center"}),
-                dcc.Graph(
-                    id="predicted-data-stock2",
-                    figure={
-                        "data": [
-                            go.Scatter(
-                                x=valid_stock2.index,
-                                y=valid_stock2["Predictions"],
-                                mode='markers',
-                                name='Predicted Close'
-                            )
-                        ],
-                        "layout": go.Layout(
-                            title='LSTM Predicted Closing Price',
-                            xaxis={'title': 'Date'},
-                            yaxis={'title': 'Closing Rate'}
-                        )
-                    }
-                )
+               
             ])
         ])
     ])
